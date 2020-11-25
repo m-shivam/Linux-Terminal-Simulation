@@ -21,7 +21,8 @@ using namespace std;
 // througout execution of program
 char pwd[512];
 string sprompt="ShiRu@linux:~";
-string home= "/home/shivam";
+//string home= "/home/shivam";
+string home;
 string shellpath="";
 
 
@@ -284,18 +285,41 @@ int makedir(vector<string> arg, bool modeflag=false)
 // move the current shell prompt to specified path
 int cd(vector<string> args)
 {
-	//cout<<args.size()<<" "<<args[1]<<endl;
-	if(args.size()==1)chdir(home.c_str());
-	if(args.size()>1 && chdir(args[1].c_str())<0){
-    		cout<<"Path entered invalid!\n";
-    		return 1;
-    }
-    else{
-		getpwd();
-		shellpath = sprompt + (pwd+12) + "$ ";
-    } 
-
-	return 0;
+	    if(args.size()>1 && chdir(args[1].c_str())<0){	
+	    		cout<<"Path entered invalid!\n";	
+	    		return 1;	
+	    }	
+		//cout<<args.size()<<" "<<args[1]<<endl;	
+		string pt;	
+		// for(auto s:args)cout<<" *"<<s<<"* "; cout<<endl;	
+		// cout<<home<<" "; for(auto s:home)cout<<s<<" "; cout<<endl;	
+		if(args.size()==1)chdir(getenv("HOME"));	
+		else if(args.size()==2 && args[1].compare("..")==0){	
+			cout<<"2 arguments\n";	
+			// getpwd();	
+			pt = string(pwd);	
+			// printf("pt %s ", pwd);	
+			int ptlen = pt.size(), slind;	
+			slind = ptlen-1;	
+			// cout<<slind<<endl;	
+			if(pt[slind]=='/')slind--;	
+			while(slind>=0 && pt[slind]!='/')slind--;	
+			// cout<<slind<<endl;	
+			pt = pt.substr(0, slind+1);	
+			// cout<<"pt "<<pt<<endl;	
+			chdir(pt.c_str());	
+		}	
+		else if(args.size()==2){	
+			chdir(args[1].c_str());	
+		}		
+	    //else{	
+			getpwd();	
+			shellpath = sprompt + (pwd+11) + "$ ";	
+	    // } 	
+		// getpwd();	
+		// printf("pwd %s: ", pwd);	
+		// cout<<"shell "<<shellpath<<endl;	
+		return 0;
 }
 
 // displays the files and directory of requested path
@@ -526,8 +550,11 @@ int getCodeFromCmd(string cmd)
 
 int main(int argc, char const *argv[])
 {	
-	
-	cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n######################################*My Terminal*#################################\n\n"<<endl;
+	home = string(getenv("HOME"));	
+	// printf("%s",home);	
+	cout<<home<<endl;		
+	// return 0;	
+	cout<<"\n\n\n\n######################################*My Terminal*#################################\n\n"<<endl;
 	init_shell(true);
 	int cmdCode=-1;
 	vector<string> arglist;
